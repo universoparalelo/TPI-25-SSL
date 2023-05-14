@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<rss version="0.91">
+<channel>
+  <title>Canal RSS</title>
+  <link>http://miservidor.com</link>
+  <description>Guía para escribir documentos HTML</description>
+
+<image>
+  <title>Canal RSS</title>
+  <url>http://miservidor.com/milogo.gif</url>
+  <link>http://miservidor.com</link>
+  <width>128</width>
+  <height>128</height>
+</image>
+
+<item>
+  <title>Noticia 1</title>
+  <link>http://miservidor.com/noticia1.htm</link>
+  <description> Descripción de la noticia 1 </description>
+</item>
+
+<item>
+  <title>Noticia 2</title>
+  <link>http://miservidor.com/contenidos.asp?nivel=18&amp;cont=567</link>
+  <description> Emoción en la Bombonera </description>
+</item>
+
+<item>
+  <title>Noticia 3</title>
+  <link>http://miservidor.com/contenidos.asp?niv567</link>
+  <description> Importante hallazgo en las selvas amazonicas </description>
+</item>
+
+</channel>
+</rss>

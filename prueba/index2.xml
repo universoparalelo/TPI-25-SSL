@@ -1,0 +1,14 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+<book lang="es" id="simple_libro">
+<title>Un libro muy simple</title>
+<chapter id="capitulo_1">
+<title>Capitulo 1</title>
+<para>Hola mundo!</para>
+<para>¡Yo espero que tu día esta bien!</para>
+</chapter>
+<chapter id="capitulo _2">
+<title>Capitulo 2</title>
+<para>Hola otra ves, mundo!</para>
+</chapter>
+</book>

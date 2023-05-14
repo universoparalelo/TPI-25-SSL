@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<rss version="2.0">
+<channel>
+	<title>abc.es - Última hora</title>
+	<link>http://www.abc.es</link>
+	<description>Las noticias de ultima hora de abc.es, periodico online líder de informacion en español.</description>
+	<image>
+		<url>http://google.com</url>
+  		<title>www.abc.es</title>
+  		<link>http://www.abc.es</link>
+ 	</image>
+	<item>
+ 		<title>Bush advierte nuevamente a Siria sobre su política hacia Irak y Líbano</title>
+  		<link>http://www.abc.es/abc/pg051012/actualidad/internacional/estados_unidos/200510/12/bush_siria_advertencia.asp</link>
+  		<description>El presidente estadounidense George W. Bush lanzó este miércoles una nueva advertencia a Damasco para que controle su frontera con Irak y coopere plenamente en la investigación del asesinato del ex primer ministro libanés Rafic Hariri...</description>
+  	</item> 
+	<item>
+  		<title>Un bol de fideos de hace 4.000 años prueba que la pasta se originó en China</title>
+  		<link>http://www.abc.es/abc/pg051012/actualidad/sociedad/ciencia/200510/12/bol_china_pasta.asp</link>
+  		<description>El hallazgo en China de un bol de fideos de hace cuatro mil años parece demostrar que la pasta se originó en ese país y no en Italia o Arabia, según publica hoy la revista británica "Nature"...</description>
+ 	</item>
+	<item>
+  		<title>La "puerta" en Marte: la explicación sobre la misteriosa formación en una foto del planeta rojo</title>
+  		<link>http://www.abc.es/abc/ciencia/la-puerta-en-marte-la-explicacion-sobre-la-misteriosa-formacion-en-una-foto-del-planeta-rojo-nid18052022/</link>
+  		<description>A partir de la publicación, en Internet algunas personas comenzaron a teorizar sobre su forma y su apariencia de "entrada" o "pasadizo"</description>
+  	</item>
+	<item>
+  		<title>Yahoo y Microsoft unen sus messenger</title>
+  		<link>http://www.abc.es/abc/pg051012/actualidad/tecnologia/internet/200510/12/microsoft_yahoo_messenger.asp</link>
+  		<description>Microsoft y Yahoo estudian una alianza entre sus sistemas de mensajería instantánea por Internet que podría poner en apuros al líder mundial en este mercado, AOL, según fuentes relacionadas con las compañías...</description>
+  	</item>
+ 	</channel>
+  </rss>

@@ -1,0 +1,29 @@
+El lexer es el componente del compilador o intérprete que identifica los símbolos escritos en un programa como válidos. Es el que reconoce las letras, palabras y símbolos.
+
+Por ejemplo en el idioma español la ñ es un símbolo válido, pero un símbolo como ö no es aceptable, el lexer se encarga de analizar esto.
+
+Por otro lado un parser es el que revisa la sintaxis, es decir que las palabras y símbolos válidos del lenguaje se escriban en secuencias permitidas. Ejemplo, nuevamente en español:
+
+el caballo blanco
+
+la caballo blancos
+
+son sintácticamente correctas porque vienen en una secuencia válida en la forma <artículo><sustantivo><adjetivo>
+
+caballo la blanco
+
+No es sintácticamente correcta porque no existe la regla que especifica dicha secuencia.
+
+Habrás notado en las secuencias sintácticamente correcta que una está bien escrita y la otra, no pero dije que en sintaxis es correcta. El error que estás notando pertenece al siguiente nivel de análisis, que es la semántica.
+
+4/4 
+
+- Instalo la libreria PLY - 3.11 
+
+21/04
+
+- Lenguaje a utilizar: Python 3.11.1
+
+6/05
+ - Construi las reglas basicas del lexer y reconoce etiquetas de apertura y cerrado de cada etiquetas
+ - Todavia no valida url's y direcciones tanto de imagenes como de videos
