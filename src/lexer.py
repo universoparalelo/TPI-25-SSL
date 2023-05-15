@@ -6,10 +6,11 @@ import re
 
 # Lista de tokens. Es un requisito que esten
 tokens = [
-   'DOCTYPE', 'o_Book', 'c_Book', 'o_Chapter', 'c_Chapter', 'o_Article', 'c_Article','o_ArticleInfo', 'c_ArticleInfo' , 'o_Section', 'c_Section', 'o_SimpleSec', 'c_SimpleSec', 'o_Info', 'c_Info', 'o_Abstract', 'c_Abstract', 'o_Address', 'c_Address', 'o_Author', 'c_Author', 'o_Copyright', 'c_Copyright', 'o_Title', 'c_Title', 'o_Para', 'c_Para', 'o_SimPara', 'c_SimPara', 'o_Emphasis', 'c_Emphasis', 'Link', 'o_Email', 'c_Email', 'o_ItemizedList', 'c_ItemizedList', 'o_Important', 'c_Important', 'o_FirstName', 'c_FirstName', 'o_Surname', 'c_Surname', 'o_Street', 'c_Street', 'o_City', 'c_City', 'o_State', 'c_State', 'o_Phone', 'c_Phone', 'o_Date', 'c_Date', 'o_Year', 'c_Year', 'o_Holder', 'c_Holder', 'ImageData', 'VideoData', 'o_MediaObject', 'c_MediaObject', 'o_VideoObject', 'comment', 'c_VideoObject', 'o_ImageObject', 'c_ImageObject', 'o_ListItem', 'c_ListItem', 'o_InformalTable', 'c_InformalTable', 'o_Tgroup', 'c_Tgroup', 'o_Thead', 'c_Thead', 'o_Tfoot', 'c_Tfoot', 'o_Tbody', 'c_Tbody', 'o_Row', 'c_Row', 'o_Entrytbl', 'c_Entrytbl', 'o_Entry', 'c_Entry', 'url', 'url2', 'texto', 'lang', 'A', 'B', 'S', 'SB', 'Y', 'Z', 'I', 'R', 'D', 'U', 'C', 'T', 'H', 'J', 'X', 'P', 'M', 'Vi', 'L', 'W', 'TG'
+   'xml', 'version', 'codificacion', 'DOCTYPE', 'o_Book', 'c_Book', 'o_Chapter', 'c_Chapter', 'o_Article', 'c_Article','o_ArticleInfo', 'c_ArticleInfo' , 'o_Section', 'c_Section', 'o_SimpleSec', 'c_SimpleSec', 'o_Info', 'c_Info', 'o_Abstract', 'c_Abstract', 'o_Address', 'c_Address', 'o_Author', 'c_Author', 'o_Copyright', 'c_Copyright', 'o_Title', 'c_Title', 'o_Para', 'c_Para', 'o_SimPara', 'c_SimPara', 'o_Emphasis', 'c_Emphasis', 'Link', 'o_Email', 'c_Email', 'o_ItemizedList', 'c_ItemizedList', 'o_Important', 'c_Important', 'o_FirstName', 'c_FirstName', 'o_Surname', 'c_Surname', 'o_Street', 'c_Street', 'o_City', 'c_City', 'o_State', 'c_State', 'o_Phone', 'c_Phone', 'o_Date', 'c_Date', 'o_Year', 'c_Year', 'o_Holder', 'c_Holder', 'ImageData', 'VideoData', 'o_MediaObject', 'c_MediaObject', 'o_VideoObject', 'comment', 'c_VideoObject', 'o_ImageObject', 'c_ImageObject', 'o_ListItem', 'c_ListItem', 'o_InformalTable', 'c_InformalTable', 'o_Tgroup', 'c_Tgroup', 'o_Thead', 'c_Thead', 'o_Tfoot', 'c_Tfoot', 'o_Tbody', 'c_Tbody', 'o_Row', 'c_Row', 'o_Entrytbl', 'c_Entrytbl', 'o_Entry', 'c_Entry', 'url', 'url2', 'texto', 'lang', 'atributos', 'A', 'B', 'S', 'SB', 'Y', 'Z', 'I', 'R', 'D', 'U', 'C', 'T', 'H', 'J', 'X', 'P', 'M', 'Vi', 'L', 'W', 'TG'
 ]
 
 # Expresiones regulares para reglas simples
+t_xml = r'(<\?xml)'
 t_DOCTYPE = r'(<!DOCTYPE>)'
 t_o_InformalTable = r'[<]informaltable[>]'
 t_c_InformalTable = r'[<]/informaltable[>]'
@@ -93,9 +94,13 @@ t_o_Row = r'[<]row[>]'
 t_c_Row = r'[<]/row[>]'
 t_Link = r'[<]link'
 
-# def t_o_Article(t):
-#     r'[<]article'
-#     return t
+def t_version(t):
+    r'(version[=]["][0-9.]+["])'
+    return t
+
+def t_codificacion(t):
+    r'(encoding[=]["][A-Z\-0-9]+["])[>]'
+    return t
 
 def t_lang(t):
     r'lang[=]["](en|es)["][>]'
@@ -111,7 +116,7 @@ def t_comment(t):
 
 # Definimos una regla para el texto comun
 def t_texto(t):
-    r'(\w|-|ñ+|á|é|í|ó|ú|Á|É|Í|Ó|Ú|\-|_|\#|&|\(|\)|\?|\¿|!|¡|\,|\=|\.|/+|"|;|:|\+|\s)+'
+    r"[\w.,\?á-úÁ-ÚñÑü ¡!¿\*\/@©­­'\$]+"
     return t
 
 # Definimos una regla para contar lineas
@@ -128,7 +133,7 @@ def t_error(t):
     t.lexer.skip(1)
 
 # Abrimos un archivo
-archivo = open('./prueba/index.xml', "r")
+# archivo = open('./prueba/index.xml', "r")
 
 
 # Construye el lexer
@@ -136,10 +141,10 @@ lexer = lex.lex()
 # optimize=1,lextab="footab"
 
 # Dato que ingresa el usuario
-# data = input("Ingrese un texto en formato xml: \n")
+data = input("Ingrese un texto en formato xml: \n")
 
 # Le pasa al lexer el input del usuario
-lexer.input(archivo.read())
+lexer.input(data)
 
 # Tokenize
 while True:

@@ -1,21 +1,17 @@
-<!-- <?xml version="1.0" standalone="no"?> -->
+<?xml version="1.0" standalone="no"?>
 <!DOCTYPE>
 <article lang="es">
 	<title>Creando Documentación Técnica con DocBook</title>
  	<articleinfo>
   		<author>
-   			<firstname>Leonardo</firstname>
+   			<firstname>Leonardo </firstname>
    			<surname>Caballero</surname>
   		</author>
  	</articleinfo>
  	<section>
   		<title>Introducción</title>
   		<para><link href="http://www.oasis-open.org/docbook/"/>
-DocBook es un aplicación del estándar SGML/XML e
-incluye una DTD propia y que se utiliza de manera
-más destacada en el área de la documentación técnica,
-especialmente para documentar todo tipo de material
-y programas informáticos, para mayor información consultar aquí <link href="http://www.oasis-open.org/docbook/"/>.
+DocBook es un aplicación del estándar SGML/XML e incluye una DTD propia y que se utiliza de manera más destacada en el área de la documentación técnica, especialmente para documentar todo tipo de material y programas informáticos, para mayor información consultar aquí<link href="http://www.oasis-open.org/docbook/"/>.
   		</para>
  	</section>
 </article>
