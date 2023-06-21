@@ -230,7 +230,7 @@ def t_error(t):
 
 lexer = lex.lex()
 
-#PARSER: declaración de las producciones
+# PARSER: declaración de las producciones
 
 def p_sigma(p):
     '''sigma : XML VERSION1 ENCODING RSS1 VERSION2 CHANNEL1 main cuerpo CHANNEL2 RSS2

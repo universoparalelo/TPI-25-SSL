@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE>
+
+<article lang="es">
+  <title>Documento de ejemplo</title>
+  
+  <info>
+    <title>Información</title>
+    <author>
+      <firstname>John</firstname>
+      <surname>Doe</surname>
+    </author>
+  </info>
+  
+  <section>
+    <title>Introducción</title>
+    <para>Esta es la sección de introducción. Proporciona una descripción general del tema.     </para>
+  </section>
+  
+  <section>
+    <title>Contenido principal</title>
+    <para>Esta es la sección de contenido principal. Contiene información detallada sobre el tema.</para>
+    <para>Puede incluir varios párrafos para presentar diferentes aspectos o subtemas.</para>
+    <para>Cada párrafo puede tener su propio contenido único.</para>
+    <para>Para obtener más información, consulta la siguiente <link xlink:href="https://example.com">pagina</link></para>
+  </section>
+</article>
