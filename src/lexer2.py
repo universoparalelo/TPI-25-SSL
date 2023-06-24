@@ -109,10 +109,14 @@ def t_lang(t):
 
 def t_url(t):
     r'xlink:href="(https?|ftps?|ftp|http):\/\/[\wñáéíóúÁÉÍÓÚ?=&\-_.\/]+(\:[0-9]+)?(\/[\wñáéíóúÁÉÍÓÚ\-_.\/]+)?(\#[\wñáéíóúÁÉÍÓÚ\-_.\/]+)?"(>)'
+    global urlList
+    urlList.append(t.value)
     return t
 
 def t_url2(t):
     r'fileref="(https?|ftps?|ftp|http):\/\/[\wñáéíóúÁÉÍÓÚ?=&\-_.\/]+(\:[0-9]+)?(\/[\wñáéíóúÁÉÍÓÚ\-_.\/]+)?(\#[\wñáéíóúÁÉÍÓÚ\-_.\/]+)?"(/>)'
+    global url2List
+    url2List.append(t.value)
     return t
 
 def t_comment(t):
@@ -148,6 +152,8 @@ def find_column(input, token):
 # variables auxiliares
 h1 = 0
 h2 = 0
+urlList = []
+url2List = []
 
 # PARSER : producciones de cada etiqueta
 
@@ -155,18 +161,18 @@ def p_sigma(p):
     '''
     sigma : xml version codificacion DOCTYPE article 
     '''
-    p[0] = '<html lang="en"><head><meta charset="UTF-8"><meta name="viewport content="width=device-width, initial-scale=1.0"> <title>Document</title></head>'+p[5]+'</html>'
-    print(p[0])
+    p[0] = '<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0"> \n<title>Document</title>\n</head>'+p[5]+'\n</html>'
+    return p[0]
 
 def p_article(p):
     '''
     article : o_Article lang title info A c_Article
             | o_Article lang title A c_Article
     '''
-    if len(p) == 6:
-        p[0] = '<body alng="es">'+p[3]+p[4]+p[5]+'</body>'
+    if len(p) == 7:
+        p[0] = '\n<body>'+p[3]+p[4]+p[5]+'\n</body>'
     else:
-        p[0] = '<body lang="es">'+p[3]+p[5]+'</body>'
+        p[0] = '\n<body>'+p[3]+p[5]+'\n</body>'
     
 def p_A(p):
     '''
@@ -185,20 +191,23 @@ def p_A(p):
         | info A
         | empty
     '''
-    if len(p) == 2:
-        p[0] = p[1] + p[2]
+    if len(p) == 3:
+        p[0] = p[1] + p[-1]
+    else:
+        p[0] = ''
 
 
 
 def p_section(p):
     '''
     section : o_Section title S c_Section
-            | c_Section title info S c_Section
+            | o_Section title info S c_Section
+            | o_Section info S c_Section
     '''
-    if len(p) == 4:
-        p[0] = '<div>' + p[1] + p[2] + '</div>'
+    if len(p) == 5:
+        p[0] = '\n<div>' + p[1] + p[2] + '\n</div>'
     else:
-        p[0] = '<div>' + p[1] + p[2] + p[3] + '</div>'
+        p[0] = '\n<div>' + p[1] + p[2] + p[3] + '\n</div>'
 
 def p_S(p):
     '''
@@ -211,10 +220,14 @@ def p_S(p):
         | informalTable S
         | COMMENT S
         | abstract S
+        | simpleSec S
+        | section S
         | empty 
     '''
-    if len(p) == 2:
-        p[0] = p[1] + p[2]
+    if len(p) == 3:
+        p[0] = p[1] + p[-1]
+    else:
+        p[0] = ''
 
 
 def p_simpleSec(p):
@@ -224,25 +237,25 @@ def p_simpleSec(p):
                 | o_SimpleSec title S c_SimpleSec
                 | o_SimpleSec info title S c_SimpleSec
     '''
-    if len(p) == 3:
-        p[0] = '<div>' + p[2] + '</div>'
-    elif len(p) == 4:
-        p[0] = '<div>' + p[2] + p[3] + '</div>'
+    if len(p) == 4:
+        p[0] = '\n<div>' + p[2] + '\n</div>'
+    elif len(p) == 5:
+        p[0] = '\n<div>' + p[2] + p[3] + '\n</div>'
     else:
-        p[0] = '<div>' + p[2] + p[3]+ p[4] + '</div>'
+        p[0] = '\n<div>' + p[2] + p[3]+ p[4] + '\n</div>'
 
 
 def p_info(p):
     '''
     info : o_Info I c_Info 
     '''
-    p[0] = '<div>' + p[2] + '</div>'
+    p[0] = '\n<div>' + p[2] + '\n</div>'
 
 def p_articleInfo(p):
     '''
     articleInfo : o_ArticleInfo I c_ArticleInfo 
     '''
-    p[0] = '<div>' + p[2] + '</div>'
+    p[0] = '\n<div>' + p[2] + '\n</div>'
 
 def p_I(p):
     '''
@@ -255,8 +268,11 @@ def p_I(p):
         | title I
         | empty
     '''
-    if len(p) == 2:
-        p[0] = p[1] + p[2]
+    if len(p) == 3:
+        p[0] = p[1] + p[-1]
+    else:
+        p[0] = p[1]
+    
 
 def p_abstract(p): 
     '''
@@ -264,9 +280,9 @@ def p_abstract(p):
                | c_Abstract R o_Abstract
     '''
     if len(p) == 4:
-        p[0] = '<p>' + p[2] + p[3] + '</p>'
+        p[0] = '\n<p>' + p[2] + p[3] + '\n</p>'
     else:
-        p[0] = '<p>' + p[2] + '</p>'
+        p[0] = '\n<p>' + p[2] + '\n</p>'
 
 def p_R(p): 
     '''
@@ -274,14 +290,14 @@ def p_R(p):
         | simPara R
         | empty
     '''
-    if len(p) == 2:
+    if len(p) == 3:
         p[0] = p[1] + p[2]
 
 def p_address(p):
     '''
     address : o_Address D c_Address
     '''
-    p[0] = '<p>' + p[2] + '</p>'
+    p[0] = '\n<p>' + p[2] + '\n</p>'
 
 def p_D(p):
     '''
@@ -293,14 +309,14 @@ def p_D(p):
         | email D
         | empty 
     '''
-    if len(p) == 2:
+    if len(p) == 3:
         p[0] = p[1] + p[2]
 
 def p_author(p): 
     '''
     author : o_Author firstName U surname c_Author
     '''
-    p[0] = '<p>' + p[2] + '</p>'
+    p[0] = '\n<p>' + p[2]  + p[4] + '\n</p>'
 
 def p_U(p): 
     '''
@@ -308,7 +324,7 @@ def p_U(p):
         | U surname
         | empty
     '''
-    if len(p) == 2:
+    if len(p) == 3:
         p[0] = p[1] + p[2]
 
 def p_copyright(p): 
@@ -323,7 +339,7 @@ def p_C(p):
         | C holder     
         | empty
     '''
-    if len(p) == 2:
+    if len(p) == 3:
         p[0] = p[1] + p[2]
 
 def p_title(p):
@@ -333,9 +349,9 @@ def p_title(p):
     global h1
     h1 += 1
     if h1 == 1:
-        p[0] = '<h1>' + p[2] + '</h1>'
+        p[0] = '\n<h1>' + p[2] + '</h1>'
     else:
-        p[0] = '<h2>' + p[2] + '</h2>'
+        p[0] = '\n<h2>' + p[2] + '</h2>'
 
 def p_T(p):
     '''
@@ -345,13 +361,13 @@ def p_T(p):
     | link 
     | email
     '''
-    if len(p) == 2:
-        p[0] = p[1] + p[2]
+    if len(p) == 3:
+        p[0] = p[1] + p[2] 
     else:
         p[0] = p[1]
 
-def p_texto(p):
-    p[0] = t_texto.value
+# def p_texto(p):
+#     p[0] = p[1].value
  
 def p_simPara(p): 
     ''' 
@@ -381,6 +397,10 @@ def p_X(p):
         | author 
         | COMMENT 
     ''' 
+    if len(p) == 3:
+        p[0] = p[1] + p[2]
+    else:
+        p[0] = p[1]
      
 def p_link(p): 
     ''' 
@@ -388,8 +408,6 @@ def p_link(p):
     ''' 
     p[0] = '<a>' + p[2] + p[3] + '</a>'
  
-def p_url(p):
-    p[0] = t_url.value
 
 def p_para(p): 
     ''' 
@@ -412,12 +430,22 @@ def p_P(p):
         | mediaObject 
         | informalTable 
     ''' 
+    if len(p) == 3:
+        if p[2] is None:
+            p[2] = ''
+        p[0] = p[1] + p[2]
+    else:
+        p[0] = p[1]
  
 def p_important(p): 
     ''' 
     important : o_Important M c_Important 
             | o_Important title M c_Important
     ''' 
+    if len(p) == 5:
+        p[0] = '<p>' + p[1] + p[2] + '</p>'
+    else:
+        p[0] = '<p>' + p[1] + '</p>'
  
 def p_M(p): 
     ''' 
@@ -431,6 +459,11 @@ def p_M(p):
         | COMMENT 
         | abstract 
     ''' 
+    if len(p) == 3:
+        p[0] = p[1] + p[2]
+    else:
+        p[0] = p[1]
+    
  
 def p_firstName(p): 
     ''' 
@@ -503,6 +536,10 @@ def p_Y(p):
         | emphasis 
         | COMMENT
     '''
+    if len(p) == 3:
+        p[0] = p[1] + p[2]
+    else:
+        p[0] = p[1]
 
 
 def p_mediaObject(p):
@@ -510,6 +547,10 @@ def p_mediaObject(p):
     mediaObject : o_MediaObject info Vi c_MediaObject
                 | o_MediaObject Vi c_MediaObject 
     '''
+    if len(p) == 5:
+        p[0] = '<div>' + p[2] + p[3] + '</div>'
+    else:
+        p[0] = '<div>' + p[2] + '</div>'
 
 def p_Vi(p):
     '''
@@ -518,28 +559,42 @@ def p_Vi(p):
         | videoObject
         | imageObject
     '''
+    if len(p) == 3:
+        p[0] = p[1] + p[2]
+    else:
+        p[0] = p[1]
 
 def p_videoObject(p):
     '''
     videoObject : o_VideoObject info videoData c_VideoObject
                 | o_VideoObject videoData c_VideoObject
     '''
+    if len(p) == 5:
+        p[0] = '<figure>' + p[2] + p[3] + '</figure>'
+    else:
+        p[0] = '<figure>' + p[2] + '</figure>'
 
 def p_videoData(p):
     '''
     videoData : VideoData url2
     '''
+    p[0] = '<video src="' + p[1]
 
 def p_imageObject(p):
     '''
     imageObject : o_ImageObject info imageData c_ImageObject
                 | o_ImageObject imageData c_ImageObject
     '''
+    if len(p) == 5:
+        p[0] = '<figure>' + p[2] + p[3] + '</figure>'
+    else:
+        p[0] = '<figure>' + p[2] + '</figure>'
 
 def p_imageData(p):
     '''
     imageData : ImageData url2
     '''
+    p[0] = '<img src=' + p[1]
 
 def p_itemizedList(p):
     '''
@@ -552,8 +607,8 @@ def p_Z(p):
     Z : listItem Z
         | empty
     '''
-    if len(p)==2:
-        p[0] = p[1] + p[2]
+    if len(p)==3:
+        p[0] = p[1]
 
 def p_listItem(p):
     '''
@@ -574,8 +629,8 @@ def p_L(p):
         | abstract L
         | empty
     '''
-    if len(p) == 2:
-        p[0] = p[1] + p[2]
+    if len(p) == 3:
+        p[0] = p[1] 
 
 
 def p_informalTable(p):
@@ -593,17 +648,17 @@ def p_TG(p):
     TG : tgroup TG
         | tgroup
     '''
-    if len(p) == 1:
+    if len(p) == 2:
         p[0] = p[1]
     else:
         p[0] = p[1] + p[2]
 
-def p_MD(p):
+def p_MO(p):
     '''
-    MD : mediaObject MD
+    MO : mediaObject MO
         | mediaObject
     '''
-    if len(p) == 1:
+    if len(p) == 2:
         p[0] = p[1]
     else:
         p[0] = p[1] + p[2]
@@ -615,9 +670,9 @@ def p_tgroup(p):
             | o_Tgroup thead tbody c_Tgroup
             | o_Tgroup thead tbody tfoot c_Tgroup
     '''
-    if len(p) == 3:
+    if len(p) == 4:
         p[0] = p[2]
-    elif len(p)== 4:
+    elif len(p)== 5:
         p[0] = p[2] + p[3]
     else:
         p[0] = p[2] + p[3] + p[4]
@@ -653,17 +708,26 @@ def p_W(p):
         | entry
         | entrytbl
     '''
+    if len(p) == 3:
+        p[0] = p[1] + p[2]
+    else:
+        p[0] = p[1]
 
 def p_entrytbl(p):
     '''
     entrytbl : o_Entrytbl tbody c_Entrytbl
             | o_Entrytbl thead tbody c_Entrytbl
     '''
+    if len(p) == 3:
+        p[0] = '<td>' + p[2] +'</td>'
+    else:
+        p[0] = '<td>' + p[2] + p[3] + '</td>'
 
 def p_entry(p):
     '''
     entry : o_Entry J c_Entry
     '''
+    p[0] = '<td>' + p[2] + '</td>'
 
 def p_J(p):
     '''
@@ -684,66 +748,43 @@ def p_J(p):
         | COMMENT 
         | abstract 
     '''
+    if len(p) == 3:
+        p[0] = p[1] + p[2]
+    else:
+        p[0] = p[1]
 
 # Defino el string vacio
 def p_empty(p):
     ''' 
     empty : 
     '''
-    p[0] = None
+    p[0] = ''
 
 # Manejo de errores sintacticos
 def p_error(p):
     print(f"Error de sintaxis en la entrada: {p.value}")
 
 
-
 # **********OPCIONES PARA INGRESAR TEXTO XML**********
-
-# Leer el archivo con codificación UTF-8
-# with open("../prueba/index.xml", "r", encoding="utf-8") as archivo:
-#     contenido = archivo.read()
-
-# Dato que ingresa el usuario
-# data = input("Ingrese un texto en formato xml: \n")
 
 # Construye el lexer
 lexer = lex.lex()
 # optimize=1,lextab="footab"
 
-# lexer.input(contenido)
-# lexer.input(data)
-# ya no le pasamos la data al lexer, se la pasamos al parser
-
-# Tokenize
-# while True:
-#     tok = lexer.token()
-#     if not tok:
-#         break      # No mas para leer
-#     # print(tok.type, tok.value, tok.lineno, tok.lexpos)
-#     print(tok)
-
 parser = yacc.yacc()
-
-# intenta parsear el texto y si aparece un error sale del bucle
-# while True:
-#     try:
-#        s = input(contenido)
-#     except EOFError:
-#         break
-#     if not s: continue
-#     result = parser.parse(s)
-#     print(result)
-
-# docbook_text = obtener_texto_docbook()
-# result = parser.parse(docbook_text)
-
 
 def parse_file(filename):
     
     with open(filename, 'r') as file:
         content = file.read()
-        parser.parse(content)
+        data = (parser.parse(content))
+
+        # Nombre del archivo de salida
+        file_name = "archivo.html"
+
+        # Escribir el contenido en el archivo
+        with open(file_name, "w") as file:
+            file.write(data)
 
 # Llama a la función parse_file() con el nombre del archivo como argumento
 parse_file('../prueba/prueba2.xml')
