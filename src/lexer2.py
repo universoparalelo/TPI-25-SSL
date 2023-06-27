@@ -149,7 +149,6 @@ def find_column(input, token):
 
 # variables auxiliares
 h1 = 0
-h2 = 0
 
 # PARSER : producciones de cada etiqueta
 
@@ -157,8 +156,9 @@ def p_sigma(p):
     '''
     sigma : xml version codificacion DOCTYPE article 
     '''
-    p[0] = '<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0"> \n<title>Document</title>\n</head>'+p[5]+'\n</html>'
+    p[0] = '<html lang="es">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0"> \n<title>Document</title>\n</head>'+p[5]+'\n</html>'
     return p[0]
+
 
 def p_article(p):
     '''
@@ -170,6 +170,7 @@ def p_article(p):
     else:
         p[0] = '\n<body>'+p[3]+p[4]+'\n</body>'
     
+
 def p_A(p):
     '''
     A : itemizedList A
@@ -203,6 +204,7 @@ def p_section(p):
         p[0] = '\n<div>' + p[2] + p[3] + '\n</div>'
     else:
         p[0] = '\n<div>' + p[2] + p[3] + p[4] + '\n</div>'
+
 
 def p_S(p):
     '''
@@ -245,12 +247,14 @@ def p_info(p):
     info : o_Info I c_Info 
     '''
     p[0] = '\n<div>' + p[2] + '\n</div>'
+    
 
 def p_articleInfo(p):
     '''
     articleInfo : o_ArticleInfo I c_ArticleInfo 
     '''
     p[0] = '\n<div>' + p[2] + '\n</div>'
+
 
 def p_I(p):
     '''
@@ -315,6 +319,7 @@ def p_author(p):
     '''
     p[0] = '\n<p>' + p[2]  + p[4] + '\n</p>'
 
+
 def p_U(p): 
     '''
     U : firstName U
@@ -328,7 +333,7 @@ def p_copyright(p):
     '''
     copyright : o_Copyright year C c_Copyright
     '''
-    p[0] = '\n<p>' + p[2] + '</p>'
+    p[0] = '\n<p>' + p[2]  + p[4] + '\n</p>'
     
 def p_C(p):
     '''
@@ -344,9 +349,9 @@ def p_title(p):
     title : o_Title T c_Title
     '''
     global h1
-    h1 += 1
-    if h1 == 1:
+    if h1 == 0:
         p[0] = '\n<h1>' + p[2] + '</h1>'
+        h1 += 1
     else:
         p[0] = '\n<h2>' + p[2] + '</h2>'
 
@@ -367,7 +372,7 @@ def p_T(p):
 def p_simPara(p): 
     ''' 
     simPara : o_SimPara X c_SimPara 
-    ''' 
+    '''
     p[0] = '\n<p>' + p[2] + '</p>'
  
 def p_emphasis(p): 
@@ -439,10 +444,17 @@ def p_important(p):
         p[0] = '\n<p>' + p[2] + p[3] + '</p>'
     else:
         p[0] = '\n<p>' + p[2] + '</p>'
- 
+    
 def p_M(p): 
     ''' 
-    M : M M 
+    M : itemizedList M
+        | para M
+        | simPara M 
+        | address M
+        | mediaObject M 
+        | informalTable M
+        | COMMENT M
+        | abstract M
         | itemizedList 
         | para 
         | simPara 
@@ -450,14 +462,13 @@ def p_M(p):
         | mediaObject 
         | informalTable 
         | COMMENT 
-        | abstract 
+        | abstract  
     ''' 
     if len(p) == 3:
         p[0] = p[1] + p[2]
     else:
         p[0] = p[1]
     
- 
 def p_firstName(p): 
     ''' 
     firstName : o_FirstName Y c_FirstName 
@@ -613,7 +624,8 @@ def p_listItem(p):
 
 def p_L(p):
     '''
-    L : itemizedList L
+    L : texto L
+        | itemizedList L
         | important L
         | para L
         | simPara L 
@@ -625,7 +637,9 @@ def p_L(p):
         | empty
     '''
     if len(p) == 3:
-        p[0] = p[1] 
+        p[0] = p[1] + p[2]
+    else:
+        p[0] = p[1]
 
 
 def p_informalTable(p):
@@ -657,10 +671,10 @@ def p_MO(p):
 
 def p_tgroup(p):
     '''
-    tgroup : o_Tgroup tbody c_Tgroup
-            | o_Tgroup tbody tfoot c_Tgroup
-            | o_Tgroup thead tbody c_Tgroup
-            | o_Tgroup thead tbody tfoot c_Tgroup
+    tgroup : o_Tgroup tbodyR c_Tgroup
+            | o_Tgroup tbodyR tfoot c_Tgroup
+            | o_Tgroup thead tbodyR c_Tgroup
+            | o_Tgroup thead tbodyR tfoot c_Tgroup
     '''
     if len(p) == 4:
         p[0] = p[2]
@@ -669,23 +683,43 @@ def p_tgroup(p):
     else:
         p[0] = p[2] + p[3] + p[4]
 
+def p_tbodyR(p):
+    '''
+    tbodyR : tbody tbodyR
+            | tbody
+    '''
+    if len(p) == 2:
+        p[0] = p[1]
+    else:
+        p[0] = p[1] + p[2]
+
 def p_tbody(p):
     '''
-    tbody : o_Tbody ROW c_Tbody
+    tbody : o_Tbody ROW row c_Tbody
     '''
-    p[0] = '\n<tbody>' + p[2] + '\n</tbody>'
+    p[0] = '\n<tbody>' + p[2] + p[3] + '\n</tbody>'
 
 def p_tfoot(p):
     '''
-    tfoot : o_Tfoot ROW  c_Tfoot
+    tfoot : o_Tfoot ROW row c_Tfoot
     '''
-    p[0] = '\n<tfoot>' + p[2] + '\n</tfoot>'
+    p[0] = '\n<tfoot>' + p[2] + p[3] + '\n</tfoot>'
 
 def p_thead(p):
     '''
-    thead : o_Thead ROW c_Thead
+    thead : o_Thead ROW row c_Thead
     '''
-    p[0] = '\n<thead>' + p[2] + '\n</thead>'
+    p[0] = '\n<thead>' + p[2] + p[3] + '\n</thead>'
+
+def p_row(p):
+    '''
+    row : empty
+        | ROW row
+    '''
+    if len(p) == 2:
+        p[0] = p[1]
+    else:
+        p[0] = p[1] + p[2]
 
 def p_ROW(p):
     '''
@@ -767,7 +801,7 @@ parser = yacc.yacc()
 
 def parse_file(filename):
     # Leer el contenido del archivo de entrada
-    with open(filename, 'r') as file:
+    with open(filename, 'r', encoding='utf-8') as file:
         content = file.read()
         data = parser.parse(content)
 
@@ -775,64 +809,51 @@ def parse_file(filename):
     output_file = filename.split('.')[0] + '.html'
 
     # Escribir el contenido en el archivo de salida
-    with open(output_file, "w") as file:
+    with open(output_file, "w", encoding='utf-8') as file:
         file.write(data)
     
     print(f"Archivo 'archivo.html' creado en la carpeta '{output_file}'.")
 
+# Llama a la función parse_file() con el nombre del archivo como argumento
+# parse_file('../prueba/prueba2.xml')
 
-###################################################################################
-# Interfaz grafica
+from tkinter import Tk, Button, Label, Text, Scrollbar, messagebox
+from tkinter.filedialog import askopenfilename, asksaveasfilename
 
-from tkinter import *
-from tkinter import ttk, filedialog, Toplevel, Text
-
-def submitFile():
-    # Abrir el diálogo de selección de archivo
-    archivo = filedialog.askopenfilename()
+def seleccionar_archivo_xml():
+    archivo = askopenfilename(filetypes=[("XML Files", "*.xml")])
+    print(archivo)
     
-    # Mostrar el nombre del archivo seleccionado en la etiqueta
+    # Llama a la función parse_file() con el nombre del archivo como argumento
+    parse_file(archivo)
+    
+    if archivo:
+        messagebox.showinfo("Acción completada", "Se ha seleccionado el archivo XML con éxito")
+
+def mostrar_cuadro_texto():
+    boton_seleccionar_archivo_xml.pack_forget()
+    boton_escribir_xml.pack_forget()
+    boton_salir.pack_forget()
+    cuadro_texto.pack(pady=10)
+    boton_guardar.pack(pady=5)
+
+def escribir_archivo_html():
+    contenido = cuadro_texto.get("1.0", "end-1c")
+    archivo = asksaveasfilename(defaultextension=".html", filetypes=[("HTML Files", "*.html")])
+    
+    if archivo:
+        with open(archivo, "w", encoding='utf-8') as file:
+            file.write(contenido)
+        messagebox.showinfo("Acción completada", "Se ha guardado el archivo XML con éxito")
+    
+    # Llama a la función parse_file() con el nombre del archivo como argumento
     parse_file(archivo)
 
-def open_new_window():
-    def submitTexto():
-        text_content = entry.get("1.0", "end-1c")
-        data = parser.parse(text_content)
-
-        # Carpeta de salida para el archivo
-        output_folder = "../prueba/"
-
-        # Verificar si la carpeta de salida existe, si no, crearla
-        if not os.path.exists(output_folder):
-            os.makedirs(output_folder)
-
-        # Ruta completa del archivo de salida
-        output_file = os.path.join(output_folder, "archivo.html")
-
-        # Escribir el contenido en el archivo de salida
-        with open(output_file, "w") as file:
-            file.write(data)
-        
-        print(f"Archivo 'archivo.html' creado en la carpeta '{output_folder}'.")
-        
-        new_window.destroy()
-
-    new_window = Toplevel(root)
-    new_window.title("Nueva ventana")
-
-    resize(new_window)
-
-    mainframe2 = ttk.Frame(new_window)
-    mainframe2.pack()
-
-    # Crear el área de texto
-    entry = Text(mainframe2, width=40, height=10)
-    entry.pack()
-
-    # Crear el botón para convertir
-    button2 = ttk.Button(new_window, text="Convertir", command=submitTexto)
-    button2.pack()
-
+    boton_seleccionar_archivo_xml.pack(pady=5)
+    boton_escribir_xml.pack(pady=5)
+    boton_salir.pack(pady=5)
+    cuadro_texto.pack_forget()
+    boton_guardar.pack_forget()
 
 def resize(window):
     wtotal = window.winfo_screenwidth()
@@ -850,19 +871,24 @@ def resize(window):
     window.geometry(str(wventana)+"x"+str(hventana)+"+"+str(pwidth)+"+"+str(pheight))
 
 root = Tk()
-root.title("PARSING DOCBOOK")
+root.title("Interfaz con botones")
+resize(root)  # Cambiar el tamaño de la ventana principal
 
-resize(root)
+label = Label(root, text="Presiona los botones para realizar diferentes acciones")
+label.pack(pady=10)
 
-mainframe = ttk.Frame(root, padding="3 3 12 12")
-mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
-root.columnconfigure(0, weight=1)
-root.rowconfigure(0, weight=1)
+boton_seleccionar_archivo_xml = Button(root, text="Seleccionar archivo XML", command=seleccionar_archivo_xml)
+boton_seleccionar_archivo_xml.pack(pady=5)
 
-title = ttk.Label(mainframe, text="Bienvenido! Quieres escribir un codigo xml o buscar un archivo?").grid(column=1, row=1, columnspan=4)
+boton_escribir_xml = Button(root, text="Escribir código en XML", command=mostrar_cuadro_texto)
+boton_escribir_xml.pack(pady=5)
 
-button1 = ttk.Button(mainframe, text="File", command=submitFile).grid(column=2, row=2, sticky=E)
-button2 = ttk.Button(mainframe, text="Write", command=open_new_window).grid(column=3, row=2, sticky=W)
+cuadro_texto = Text(root, height=15, width=60, font=("Arial", 12))  # Cambiar el tamaño del cuadro de texto
+
+boton_guardar = Button(root, text="Guardar como HTML", command=escribir_archivo_html)
+
+boton_salir = Button(root, text="Salir", command=exit)
+boton_salir.pack(pady=5)
 
 root.mainloop()
 

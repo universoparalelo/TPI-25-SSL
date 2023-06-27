@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE>
+<article lang="es">
+    <title>Probando la creacion de tablas en xml</title>
+
+    <section>
+        <title>Titulo de la primera seccion</title>
+
+        <informaltable>
+            <tgroup>
+                <thead>
+                    <row><entry>Nombre</entry></row>
+                    <row><entry>Apellido</entry></row>
+                    <row><entry>Curso</entry></row>
+                    <row><entry>Carrera</entry></row>
+                    <row><entry>Año de ingreso</entry></row>
+                </thead>
+                <tbody>
+                    <row><entry>Celeste</entry></row>
+                    <row><entry>Martin</entry></row>
+                    <row><entry>2 A</entry></row>
+                    <row><entry>ISI</entry></row>
+                    <row><entry>2021</entry></row>
+                </tbody>
+                <tbody>
+                    <row><entry>Matias</entry></row>
+                    <row><entry>Machado</entry></row>
+                    <row><entry>2 A</entry></row>
+                    <row><entry>ISI</entry></row>
+                    <row><entry>2021</entry></row>
+                </tbody>
+                <tbody>
+                    <row><entry>Irina</entry></row>
+                    <row><entry>Zibelman</entry></row>
+                    <row><entry>2 A</entry></row>
+                    <row><entry>ISI</entry></row>
+                    <row><entry>2021</entry></row>
+                </tbody>
+            </tgroup>
+        </informaltable>
+    </section>
+
+    <section>
+        <title>Titulo de la segunda seccion</title>
+
+        <itemizedlist>
+            <listitem>
+                <important>
+                    <para> Materias de primer año ISI </para>
+                </important>
+                <itemizedlist>
+                    <listitem>Sistema y organizaciones</listitem>
+                    <listitem>Algoritmos y estructuras de datos</listitem>
+                    <listitem>Analisis matematico 1</listitem>
+                    <listitem>Matematica discreta</listitem>
+                    <listitem>Algebra y geometria analitica</listitem>
+                    <listitem>Fisica 1</listitem>
+                </itemizedlist>
+            </listitem>
+            <listitem>
+                <important>
+                    <para> Materias de segundo año ISI </para>
+                </important>
+                <itemizedlist>
+                    <listitem>Analisis de sistemas de informacion</listitem>
+                    <listitem>Fisica 2</listitem>
+                    <listitem>Analisis matematico 2</listitem>
+                    <listitem>Sintaxis y semantica de los lenguajes</listitem>
+                    <listitem>Arquitectura de computadora</listitem>
+                    <listitem>Ingenieria y sociedad</listitem>
+                    <listitem>Paradigmas de programacion</listitem>
+                    <listitem>Sistemas operativos</listitem>
+                </itemizedlist>
+            </listitem>
+        </itemizedlist>
+    </section>
+
+    <section>
+        <title>Seccion 3</title>
+
+        <para>Logo de la institucion</para>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="https://s3.amazonaws.com/s3.timetoast.com/public/uploads/photo/14029100/image/5e680932a057fca568ab4298f2f425c9"/>
+            </imageobject>
+        </mediaobject>
+
+        <para>Frente de la institucion</para>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="https://agenciafoco.com.ar/media/cache/quality/uploads/noticias/64020bae3ba9b527350023.jpg"/>
+            </imageobject>
+        </mediaobject>
+
+        <para>Aula magna de la institucion</para>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="https://attend.ieee.org/argencon-2020/wp-content/uploads/sites/171/aulamagna2-1-1024x576.jpg"/>
+            </imageobject>
+        </mediaobject>
+    </section>
+
+
+</article>
