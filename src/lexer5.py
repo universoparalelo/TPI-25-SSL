@@ -1,7 +1,7 @@
 import ply.lex as lex
 import ply.yacc as yacc
 from sys import *
-import os
+import re
 
 # Lista de tokens. Es un requisito que esten
 tokens = [
@@ -109,12 +109,14 @@ def t_lang(t):
 
 def t_url(t):
     r'xlink:href="(https?|ftps?|ftp|http):\/\/[\wñáéíóúÁÉÍÓÚ?=&\-_.\/]+(\:[0-9]+)?(\/[\wñáéíóúÁÉÍÓÚ\-_.\/]+)?(\#[\wñáéíóúÁÉÍÓÚ\-_.\/]+)?"(>)'
-    t.value = t.value.split('=')[1]
+    global urlList
+    urlList.append(t.value)
     return t
 
 def t_url2(t):
     r'fileref="(https?|ftps?|ftp|http):\/\/[\wñáéíóúÁÉÍÓÚ?=&\-_.\/]+(\:[0-9]+)?(\/[\wñáéíóúÁÉÍÓÚ\-_.\/]+)?(\#[\wñáéíóúÁÉÍÓÚ\-_.\/]+)?"(/>)'
-    t.value = t.value.split('=')[1]
+    global url2List
+    url2List.append(t.value)
     return t
 
 def t_comment(t):
@@ -150,6 +152,8 @@ def find_column(input, token):
 # variables auxiliares
 h1 = 0
 h2 = 0
+urlList = []
+url2List = []
 
 # PARSER : producciones de cada etiqueta
 
@@ -168,7 +172,7 @@ def p_article(p):
     if len(p) == 7:
         p[0] = '\n<body>'+p[3]+p[4]+p[5]+'\n</body>'
     else:
-        p[0] = '\n<body>'+p[3]+p[4]+'\n</body>'
+        p[0] = '\n<body>'+p[3]+p[5]+'\n</body>'
     
 def p_A(p):
     '''
@@ -188,9 +192,10 @@ def p_A(p):
         | empty
     '''
     if len(p) == 3:
-        p[0] = p[1] + p[2]
+        p[0] = p[1] + p[-1]
     else:
-        p[0] = p[1]
+        p[0] = ''
+
 
 
 def p_section(p):
@@ -200,9 +205,9 @@ def p_section(p):
             | o_Section info S c_Section
     '''
     if len(p) == 5:
-        p[0] = '\n<div>' + p[2] + p[3] + '\n</div>'
+        p[0] = '\n<div>' + p[1] + p[2] + '\n</div>'
     else:
-        p[0] = '\n<div>' + p[2] + p[3] + p[4] + '\n</div>'
+        p[0] = '\n<div>' + p[1] + p[2] + p[3] + '\n</div>'
 
 def p_S(p):
     '''
@@ -220,9 +225,9 @@ def p_S(p):
         | empty 
     '''
     if len(p) == 3:
-        p[0] = p[1] + p[2]
+        p[0] = p[1] + p[-1]
     else:
-        p[0] = p[1]
+        p[0] = ''
 
 
 def p_simpleSec(p):
@@ -264,7 +269,7 @@ def p_I(p):
         | empty
     '''
     if len(p) == 3:
-        p[0] = p[1] + p[2]
+        p[0] = p[1] + p[-1]
     else:
         p[0] = p[1]
     
@@ -306,8 +311,6 @@ def p_D(p):
     '''
     if len(p) == 3:
         p[0] = p[1] + p[2]
-    else:
-        p[0] = p[1]
 
 def p_author(p): 
     '''
@@ -328,7 +331,7 @@ def p_copyright(p):
     '''
     copyright : o_Copyright year C c_Copyright
     '''
-    p[0] = '\n<p>' + p[2] + '</p>'
+    p[0] = '<p>' + p[2] + '</p>'
     
 def p_C(p):
     '''
@@ -352,35 +355,37 @@ def p_title(p):
 
 def p_T(p):
     '''
-    T : texto T
-    | emphasis T
-    | link T
-    | email T
-    | empty
+    T : T T 
+    | texto 
+    | emphasis
+    | link 
+    | email
     '''
     if len(p) == 3:
-        p[0] = p[1] + p[2]
-    elif p[1] == '':
+        p[0] = p[1] + p[2] 
+    else:
         p[0] = p[1]
 
+# def p_texto(p):
+#     p[0] = p[1].value
  
 def p_simPara(p): 
     ''' 
     simPara : o_SimPara X c_SimPara 
     ''' 
-    p[0] = '\n<p>' + p[2] + '</p>'
+    p[0] = '<p>' + p[2] + '</p>'
  
 def p_emphasis(p): 
     ''' 
     emphasis : o_Emphasis X c_Emphasis 
     ''' 
-    p[0] = '\n<p>' + p[2] + '</p>'
+    p[0] = '<p>' + p[2] + '</p>'
       
 def p_COMMENT(p): 
     ''' 
     COMMENT : o_Comment X c_Comment 
     ''' 
-    p[0] = '\n<p>' + p[2] + '</p>'
+    p[0] = '<p>' + p[2] + '</p>'
  
 def p_X(p): 
     ''' 
@@ -401,31 +406,33 @@ def p_link(p):
     ''' 
     link : o_Link url X c_Link 
     ''' 
-    p[0] = '<a href=' + p[2] + p[3] + '</a>'
+    p[0] = '<a>' + p[2] + p[3] + '</a>'
  
 
 def p_para(p): 
     ''' 
     para : o_Para P c_Para 
     ''' 
-    p[0] = '\n<p>' + p[2] + '</p>'
+    p[0] = '<p>' + p[2] + '</p>'
  
 def p_P(p): 
     ''' 
-    P : texto P
-        | emphasis P 
-        | link P
-        | email P
-        | author P
-        | COMMENT P
-        | itemizedList P 
-        | important P
-        | address P
-        | mediaObject P 
-        | informalTable P
-        | empty 
+    P : P P 
+        | texto 
+        | emphasis 
+        | link 
+        | email 
+        | author 
+        | COMMENT 
+        | itemizedList 
+        | important 
+        | address 
+        | mediaObject 
+        | informalTable 
     ''' 
     if len(p) == 3:
+        if p[2] is None:
+            p[2] = ''
         p[0] = p[1] + p[2]
     else:
         p[0] = p[1]
@@ -436,9 +443,9 @@ def p_important(p):
             | o_Important title M c_Important
     ''' 
     if len(p) == 5:
-        p[0] = '\n<p>' + p[2] + p[3] + '</p>'
+        p[0] = '<p>' + p[1] + p[2] + '</p>'
     else:
-        p[0] = '\n<p>' + p[2] + '</p>'
+        p[0] = '<p>' + p[1] + '</p>'
  
 def p_M(p): 
     ''' 
@@ -474,49 +481,49 @@ def p_street(p):
     '''
     street : o_Street Y c_Street
     '''
-    p[0] = '\n<p>' + p[2] + '</p>'
+    p[0] = '<p>' + p[2] + '</p>'
 
 def p_city(p):
     '''
     city : o_City Y c_City
     '''
-    p[0] = '\n<p>' + p[2] + '</p>'
+    p[0] = '<p>' + p[2] + '</p>'
 
 def p_state(p):
     '''
     state : o_State Y c_State
     '''
-    p[0] = '\n<p>' + p[2] + '</p>'
+    p[0] = '<p>' + p[2] + '</p>'
 
 def p_phone(p):
     '''
     phone : o_Phone Y c_Phone
     '''
-    p[0] = '\n<p>' + p[2] + '</p>'
+    p[0] = '<p>' + p[2] + '</p>'
 
 def p_email(p):
     '''
     email : o_Email Y c_Email
     '''
-    p[0] = '\n<p>' + p[2] + '</p>'
+    p[0] = '<p>' + p[2] + '</p>'
 
 def p_date(p):
     '''
     date : o_Date Y c_Date
     '''
-    p[0] = '\n<p>' + p[2] + '</p>'
+    p[0] = '<p>' + p[2] + '</p>'
 
 def p_year(p):
     '''
     year : o_Year Y c_Year
     '''
-    p[0] = '\n<p>' + p[2] + '</p>'
+    p[0] = '<p>' + p[2] + '</p>'
 
 def p_holder(p):
     '''
     holder : o_Holder Y c_Holder
     '''
-    p[0] = '\n<p>' + p[2] + '</p>'
+    p[0] = '<p>' + p[2] + '</p>'
 
 def p_Y(p):
     '''
@@ -541,9 +548,9 @@ def p_mediaObject(p):
                 | o_MediaObject Vi c_MediaObject 
     '''
     if len(p) == 5:
-        p[0] = '\n<div>' + p[2] + p[3] + '</div>'
+        p[0] = '<div>' + p[2] + p[3] + '</div>'
     else:
-        p[0] = '\n<div>' + p[2] + '</div>'
+        p[0] = '<div>' + p[2] + '</div>'
 
 def p_Vi(p):
     '''
@@ -563,15 +570,15 @@ def p_videoObject(p):
                 | o_VideoObject videoData c_VideoObject
     '''
     if len(p) == 5:
-        p[0] = '\n<figure>' + p[2] + p[3] + '</figure>'
+        p[0] = '<figure>' + p[2] + p[3] + '</figure>'
     else:
-        p[0] = '\n<figure>' + p[2] + '</figure>'
+        p[0] = '<figure>' + p[2] + '</figure>'
 
 def p_videoData(p):
     '''
     videoData : VideoData url2
     '''
-    p[0] = '<video src="' + p[2]
+    p[0] = '<video src="' + p[1]
 
 def p_imageObject(p):
     '''
@@ -579,21 +586,21 @@ def p_imageObject(p):
                 | o_ImageObject imageData c_ImageObject
     '''
     if len(p) == 5:
-        p[0] = '\n<figure>' + p[2] + p[3] + '\n</figure>'
+        p[0] = '<figure>' + p[2] + p[3] + '</figure>'
     else:
-        p[0] = '\n<figure>' + p[2] + '\n</figure>'
+        p[0] = '<figure>' + p[2] + '</figure>'
 
 def p_imageData(p):
     '''
     imageData : ImageData url2
     '''
-    p[0] = '<img src=' + p[2]
+    p[0] = '<img src=' + p[1]
 
 def p_itemizedList(p):
     '''
     itemizedList : o_ItemizedList listItem Z c_ItemizedList
     '''
-    p[0] = '\n<ul>' + p[2] + p[3] + '\n</ul>'
+    p[0] = '<ul>' + p[2] + p[3] + '</ul>'
 
 def p_Z(p):
     '''
@@ -601,15 +608,13 @@ def p_Z(p):
         | empty
     '''
     if len(p)==3:
-        p[0] = p[1] + p[2]
-    else: 
         p[0] = p[1]
 
 def p_listItem(p):
     '''
     listItem : o_ListItem L c_ListItem
     '''
-    p[0] = '\n<li>' + p[2] + '</li>'
+    p[0] = '<li>' + p[2] + '</li>'
 
 def p_L(p):
     '''
@@ -633,7 +638,10 @@ def p_informalTable(p):
     informalTable : o_InformalTable MO c_InformalTable
                 | o_InformalTable TG c_InformalTable
     '''
-    p[0] = '\n<table>' + p[2] + '\n</table>'
+    if len(p) == 4:
+        p[0] = '<table>' + p[2] + p[3] + '</table>'
+    else:
+        p[0] = '<table>' + p[2] + '</table>'
 
 def p_TG(p):
     '''
@@ -673,25 +681,25 @@ def p_tbody(p):
     '''
     tbody : o_Tbody ROW c_Tbody
     '''
-    p[0] = '\n<tbody>' + p[2] + '\n</tbody>'
+    p[0] = '<tbody>' + p[2] + '</tbody>'
 
 def p_tfoot(p):
     '''
     tfoot : o_Tfoot ROW  c_Tfoot
     '''
-    p[0] = '\n<tfoot>' + p[2] + '\n</tfoot>'
+    p[0] = '<tbody>' + p[2] + '</tbody>'
 
 def p_thead(p):
     '''
     thead : o_Thead ROW c_Thead
     '''
-    p[0] = '\n<thead>' + p[2] + '\n</thead>'
+    p[0] = '<tbody>' + p[2] + '</tbody>'
 
 def p_ROW(p):
     '''
     ROW : o_Row W c_Row
     '''
-    p[0] = '\n<tr>' + p[2] + '</tr>'
+    p[0] = '<tr>' + p[2] + '</tr>'
 
 def p_W(p):
     '''
@@ -711,15 +719,15 @@ def p_entrytbl(p):
             | o_Entrytbl thead tbody c_Entrytbl
     '''
     if len(p) == 3:
-        p[0] = '\n<td>' + p[2] +'\n</td>'
+        p[0] = '<td>' + p[2] +'</td>'
     else:
-        p[0] = '\n<td>' + p[2] + p[3] + '\n</td>'
+        p[0] = '<td>' + p[2] + p[3] + '</td>'
 
 def p_entry(p):
     '''
     entry : o_Entry J c_Entry
     '''
-    p[0] = '\n<td>' + p[2] + '</td>'
+    p[0] = '<td>' + p[2] + '</td>'
 
 def p_J(p):
     '''
@@ -780,59 +788,45 @@ def parse_file(filename):
     
     print(f"Archivo 'archivo.html' creado en la carpeta '{output_file}'.")
 
+# Llama a la función parse_file() con el nombre del archivo como argumento
+# parse_file('../prueba/prueba2.xml')
 
-###################################################################################
-# Interfaz grafica
+from tkinter import Tk, Button, Label, Text, Scrollbar, messagebox
+from tkinter.filedialog import askopenfilename, asksaveasfilename
 
-from tkinter import *
-from tkinter import ttk, filedialog, Toplevel, Text
-
-def submitFile():
-    # Abrir el diálogo de selección de archivo
-    archivo = filedialog.askopenfilename()
+def seleccionar_archivo_xml():
+    archivo = askopenfilename(filetypes=[("XML Files", "*.xml")])
     
-    # Mostrar el nombre del archivo seleccionado en la etiqueta
+    # Llama a la función parse_file() con el nombre del archivo como argumento
+    parse_file(archivo)
+    
+    if archivo:
+        messagebox.showinfo("Acción completada", "Se ha seleccionado el archivo XML con éxito")
+
+def mostrar_cuadro_texto():
+    boton_seleccionar_archivo_xml.pack_forget()
+    boton_escribir_xml.pack_forget()
+    boton_salir.pack_forget()
+    cuadro_texto.pack(pady=10)
+    boton_guardar.pack(pady=5)
+
+def escribir_archivo_html():
+    contenido = cuadro_texto.get("1.0", "end-1c")
+    archivo = asksaveasfilename(defaultextension=".html", filetypes=[("HTML Files", "*.html")])
+    
+    if archivo:
+        with open(archivo, "w", encoding="utf-8") as file:
+            file.write(contenido)
+        messagebox.showinfo("Acción completada", "Se ha guardado el archivo XML con éxito")
+    
+    # Llama a la función parse_file() con el nombre del archivo como argumento
     parse_file(archivo)
 
-def open_new_window():
-    def submitTexto():
-        text_content = entry.get("1.0", "end-1c")
-        data = parser.parse(text_content)
-
-        # Carpeta de salida para el archivo
-        output_folder = "../prueba/"
-
-        # Verificar si la carpeta de salida existe, si no, crearla
-        if not os.path.exists(output_folder):
-            os.makedirs(output_folder)
-
-        # Ruta completa del archivo de salida
-        output_file = os.path.join(output_folder, "archivo.html")
-
-        # Escribir el contenido en el archivo de salida
-        with open(output_file, "w") as file:
-            file.write(data)
-        
-        print(f"Archivo 'archivo.html' creado en la carpeta '{output_folder}'.")
-        
-        new_window.destroy()
-
-    new_window = Toplevel(root)
-    new_window.title("Nueva ventana")
-
-    resize(new_window)
-
-    mainframe2 = ttk.Frame(new_window)
-    mainframe2.pack()
-
-    # Crear el área de texto
-    entry = Text(mainframe2, width=40, height=10)
-    entry.pack()
-
-    # Crear el botón para convertir
-    button2 = ttk.Button(new_window, text="Convertir", command=submitTexto)
-    button2.pack()
-
+    boton_seleccionar_archivo_xml.pack(pady=5)
+    boton_escribir_xml.pack(pady=5)
+    boton_salir.pack(pady=5)
+    cuadro_texto.pack_forget()
+    boton_guardar.pack_forget()
 
 def resize(window):
     wtotal = window.winfo_screenwidth()
@@ -850,22 +844,23 @@ def resize(window):
     window.geometry(str(wventana)+"x"+str(hventana)+"+"+str(pwidth)+"+"+str(pheight))
 
 root = Tk()
-root.title("PARSING DOCBOOK")
+root.title("Interfaz con botones")
+resize(root)  # Cambiar el tamaño de la ventana principal
 
-resize(root)
+label = Label(root, text="Presiona los botones para realizar diferentes acciones")
+label.pack(pady=10)
 
-mainframe = ttk.Frame(root, padding="3 3 12 12")
-mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
-root.columnconfigure(0, weight=1)
-root.rowconfigure(0, weight=1)
+boton_seleccionar_archivo_xml = Button(root, text="Seleccionar archivo XML", command=seleccionar_archivo_xml)
+boton_seleccionar_archivo_xml.pack(pady=5)
 
-title = ttk.Label(mainframe, text="Bienvenido! Quieres escribir un codigo xml o buscar un archivo?").grid(column=1, row=1, columnspan=4)
+boton_escribir_xml = Button(root, text="Escribir código en XML", command=mostrar_cuadro_texto)
+boton_escribir_xml.pack(pady=5)
 
-button1 = ttk.Button(mainframe, text="File", command=submitFile).grid(column=2, row=2, sticky=E)
-button2 = ttk.Button(mainframe, text="Write", command=open_new_window).grid(column=3, row=2, sticky=W)
+cuadro_texto = Text(root, height=15, width=60, font=("Arial", 12))  # Cambiar el tamaño del cuadro de texto
+
+boton_guardar = Button(root, text="Guardar como HTML", command=escribir_archivo_html)
+
+boton_salir = Button(root, text="Salir", command=exit)
+boton_salir.pack(pady=5)
 
 root.mainloop()
-
-
-
-

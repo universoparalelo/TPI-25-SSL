@@ -708,18 +708,6 @@ lexer = lex.lex()
 
 parser = yacc.yacc()
 
-# intenta parsear el texto y si aparece un error sale del bucle
-# while True:
-#     try:
-#        s = input(contenido)
-#     except EOFError:
-#         break
-#     if not s: continue
-#     result = parser.parse(s)
-#     print(result)
-
-# docbook_text = obtener_texto_docbook()
-# result = parser.parse(docbook_text)
 
 def parse_file(filename):
     with open(filename, 'r') as file:
