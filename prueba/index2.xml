@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE>
+<article lang="es">
+  <title>Ejemplo de Informaltable con URLs de Videos e Imágenes</title> 
+  <info>
+    <title>Información del Artículo</title>
+    <author>
+      <firstname>Nombre</firstname>
+      <surname>Apellido</surname>
+    </author>
+  </info>
+  <section>
+    <title>Sección 1, Introducción</title>
+    <para>En esta sección se presenta una tabla con URLs de videos e imágenes.</para> 
+    <itemizedlist> 
+      <listitem>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="https://ruta/a/imagen.jpg"/>
+          </imageobject>
+        </mediaobject>
+      </listitem>
+      <listitem>
+        <comment>
+          <link xlink:href="https://google.com"> este es un link </link>
+        </comment>
+      </listitem>
+      <listitem>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="ftps://ruta/a/imagen.jpg"/>
+          <imageobject
+        </mediaobject>
+      </listitem>     
+      <listitem>
+        <comment>
+          <link xlink:href="http://youtube.com"> este es un link </link>
+        </comment>
+      </listitem>
+    </itemizedlist>
+  </section>
+</article>

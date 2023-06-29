@@ -2,14 +2,20 @@ import ply.lex as lex
 import ply.yacc as yacc
 from sys import *
 import os
+from tkinter import Tk, Button, Label, Text, Scrollbar, messagebox
+from tkinter.filedialog import askopenfilename, asksaveasfilename
+
+# variables auxiliares
+h1 = 0
+bandera = True
+error = ''
+error2 = ''
 
 # Lista de tokens. Es un requisito que esten
 tokens = [
    'xml', 'version', 'codificacion', 'DOCTYPE', 'o_Article', 'c_Article','o_ArticleInfo', 'c_ArticleInfo' , 'o_Section', 'c_Section', 'o_SimpleSec', 'c_SimpleSec', 'o_Info', 'c_Info', 'o_Abstract', 'c_Abstract', 'o_Address', 'c_Address', 'o_Author', 'c_Author', 'o_Copyright', 'c_Copyright', 'o_Title', 'c_Title', 'o_Para', 'c_Para', 'o_SimPara', 'c_SimPara', 'o_Emphasis', 'c_Emphasis', 'o_Link', 'c_Link', 'o_Email', 'c_Email', 'o_ItemizedList', 'c_ItemizedList', 'o_Important', 'c_Important', 'o_FirstName', 'c_FirstName', 'o_Surname', 'c_Surname', 'o_Street', 'c_Street', 'o_City', 'c_City', 'o_State', 'c_State', 'o_Phone', 'c_Phone', 'o_Date', 'c_Date', 'o_Year', 'c_Year', 'o_Holder', 'c_Holder', 'ImageData', 'VideoData', 'o_MediaObject', 'c_MediaObject', 'o_VideoObject', 'comment', 'c_VideoObject', 'o_ImageObject', 'c_ImageObject', 'o_ListItem', 'c_ListItem', 'o_InformalTable', 'c_InformalTable', 'o_Tgroup', 'c_Tgroup', 'o_Thead', 'c_Thead', 'o_Tfoot', 'c_Tfoot', 'o_Tbody', 'c_Tbody', 'o_Row', 'c_Row', 'o_Entrytbl', 'c_Entrytbl', 'o_Entry', 'c_Entry', 'url', 'url2', 'texto', 'lang', 'o_Comment', 'c_Comment'
 ]
 
-# tokens que no usamos   
-# 'A', 'B', 'S', 'SB', 'Y', 'Z', 'I', 'R', 'D', 'U', 'C', 'T', 'H', 'J', 'X', 'P', 'M', 'Vi', 'L', 'W', 'TG'
 
 # Expresiones regulares para reglas simples
 t_xml = r'(<\?xml)'
@@ -132,11 +138,13 @@ def t_newline(t):
     t.lexer.lineno += len(t.value)
 
 # ignora los espacios en blanco y tabuladores
-t_ignore  = ' \t\n\r'
+t_ignore  = ' \t\r'
 
 # Regla para controlar errores
 def t_error(t):
-    print(f"Error: Carácter no válido '{t.value[0]}' en la línea {t.lineno}, posición {find_column(t.lexer.lexdata, t)}")
+    global error
+    # global t_lineno
+    error = f"Error: Carácter no válido '{t.value[0]}', en la columna {t.lexer.lineno}"
     t.lexer.skip(1)
 
 # funcion para hallar la linea donde se encuentra el error
@@ -146,9 +154,6 @@ def find_column(input, token):
         last_cr = 0
     column = (token.lexpos - last_cr) + 1
     return column
-
-# variables auxiliares
-h1 = 0
 
 # PARSER : producciones de cada etiqueta
 
@@ -246,7 +251,7 @@ def p_info(p):
     '''
     info : o_Info I c_Info 
     '''
-    p[0] = '\n<div>' + p[2] + '\n</div>'
+    p[0] = '\n<div style="background-color:green; color:white; font-size:8pts;">' + p[2] + '\n</div>'
     
 
 def p_articleInfo(p):
@@ -319,7 +324,6 @@ def p_author(p):
     '''
     p[0] = '\n<p>' + p[2]  + p[4] + '\n</p>'
 
-
 def p_U(p): 
     '''
     U : firstName U
@@ -368,7 +372,6 @@ def p_T(p):
     elif p[1] == '':
         p[0] = p[1]
 
- 
 def p_simPara(p): 
     ''' 
     simPara : o_SimPara X c_SimPara 
@@ -408,7 +411,6 @@ def p_link(p):
     ''' 
     p[0] = '<a href=' + p[2] + p[3] + '</a>'
  
-
 def p_para(p): 
     ''' 
     para : o_Para P c_Para 
@@ -441,9 +443,9 @@ def p_important(p):
             | o_Important title M c_Important
     ''' 
     if len(p) == 5:
-        p[0] = '\n<p>' + p[2] + p[3] + '</p>'
+        p[0] = '\n<div style="background-color:red; color:white;">' + p[2] + p[3] + '</div>'
     else:
-        p[0] = '\n<p>' + p[2] + '</p>'
+        p[0] = '\n<div style="background-color:red; color:white;">' + p[2] + '</div>'
     
 def p_M(p): 
     ''' 
@@ -545,7 +547,6 @@ def p_Y(p):
     else:
         p[0] = p[1]
 
-
 def p_mediaObject(p):
     '''
     mediaObject : o_MediaObject info Vi c_MediaObject
@@ -640,7 +641,6 @@ def p_L(p):
         p[0] = p[1] + p[2]
     else:
         p[0] = p[1]
-
 
 def p_informalTable(p):
     '''
@@ -788,7 +788,8 @@ def p_empty(p):
 
 # Manejo de errores sintacticos
 def p_error(p):
-    print(f"Error de sintaxis en la entrada: {p.value}")
+    global error2
+    error2 = (f"Error de sintaxis en la entrada: {p.value}")
 
 
 # **********OPCIONES PARA INGRESAR TEXTO XML**********
@@ -796,8 +797,8 @@ def p_error(p):
 # Construye el lexer
 lexer = lex.lex()
 # optimize=1,lextab="footab"
-
 parser = yacc.yacc()
+
 
 def parse_file(filename):
     # Leer el contenido del archivo de entrada
@@ -809,16 +810,27 @@ def parse_file(filename):
     output_file = filename.split('.')[0] + '.html'
 
     # Escribir el contenido en el archivo de salida
-    with open(output_file, "w", encoding='utf-8') as file:
-        file.write(data)
+    try:
+        with open(output_file, "w", encoding='utf-8') as file:
+            file.write(data)
+    except TypeError:
+        global error
+        global error2 
+        if error == '':
+            global columna_error
+            messagebox.showinfo("Hubo un error con su archivo", f"{error2}, en la columna {columna_error}")
+        elif error2 == '':
+            messagebox.showinfo("Hubo un error con su archivo", f"{error}")
+        else:
+            messagebox.showinfo("Hubo un error con su archivo", f"{error}. {error2}")
+        global bandera 
+        bandera = False
     
     print(f"Archivo 'archivo.html' creado en la carpeta '{output_file}'.")
 
 # Llama a la función parse_file() con el nombre del archivo como argumento
 # parse_file('../prueba/prueba2.xml')
 
-from tkinter import Tk, Button, Label, Text, Scrollbar, messagebox
-from tkinter.filedialog import askopenfilename, asksaveasfilename
 
 def seleccionar_archivo_xml():
     archivo = askopenfilename(filetypes=[("XML Files", "*.xml")])
@@ -826,16 +838,19 @@ def seleccionar_archivo_xml():
     
     # Llama a la función parse_file() con el nombre del archivo como argumento
     parse_file(archivo)
-    
-    if archivo:
+
+    global bandera
+    if archivo and bandera:
         messagebox.showinfo("Acción completada", "Se ha seleccionado el archivo XML con éxito")
 
 def mostrar_cuadro_texto():
     boton_seleccionar_archivo_xml.pack_forget()
     boton_escribir_xml.pack_forget()
     boton_salir.pack_forget()
+    label.pack_forget()
     cuadro_texto.pack(pady=10)
     boton_guardar.pack(pady=5)
+    boton_atras.pack(pady=5)
 
 def escribir_archivo_html():
     contenido = cuadro_texto.get("1.0", "end-1c")
@@ -870,25 +885,39 @@ def resize(window):
     #  Se lo aplicamos a la geometría de la ventana
     window.geometry(str(wventana)+"x"+str(hventana)+"+"+str(pwidth)+"+"+str(pheight))
 
+def volver_atras():
+    label.pack(pady=10)
+    boton_seleccionar_archivo_xml.pack(pady=5)
+    boton_escribir_xml.pack(pady=5)
+    boton_salir.pack(pady=5)
+    
+    cuadro_texto.pack_forget()
+    boton_guardar.pack_forget()
+    boton_atras.pack_forget()
+
 root = Tk()
-root.title("Interfaz con botones")
+root.title("Interprete DocBook")
+root.config(bg="#111111")
 resize(root)  # Cambiar el tamaño de la ventana principal
 
-label = Label(root, text="Presiona los botones para realizar diferentes acciones")
+label = Label(root, text="Bienvenidx a nuestro lexer_parser\nCon esta herramienta podras traducir archivos xml a html\nPresiona los botones para realizar diferentes acciones", bg="green")
 label.pack(pady=10)
 
-boton_seleccionar_archivo_xml = Button(root, text="Seleccionar archivo XML", command=seleccionar_archivo_xml)
+boton_seleccionar_archivo_xml = Button(root, text="Seleccionar archivo XML", command=seleccionar_archivo_xml, bg="#555666")
 boton_seleccionar_archivo_xml.pack(pady=5)
 
-boton_escribir_xml = Button(root, text="Escribir código en XML", command=mostrar_cuadro_texto)
+boton_escribir_xml = Button(root, text="Escribir código en XML", command=mostrar_cuadro_texto, bg="#555666")
 boton_escribir_xml.pack(pady=5)
 
-cuadro_texto = Text(root, height=15, width=60, font=("Arial", 12))  # Cambiar el tamaño del cuadro de texto
-
-boton_guardar = Button(root, text="Guardar como HTML", command=escribir_archivo_html)
-
-boton_salir = Button(root, text="Salir", command=exit)
+boton_salir = Button(root, text="Salir", command=exit, bg="#555666")
 boton_salir.pack(pady=5)
+
+cuadro_texto = Text(root, height=15, width=60, font=("Arial", 12), bg="#555666")  
+# Cambiar el tamaño del cuadro de texto
+boton_guardar = Button(root, text="Guardar como HTML", command=escribir_archivo_html, bg="#555666")
+boton_atras = Button(root, text="Volver atras", command=volver_atras, bg="#555666")
+
+
 
 root.mainloop()
 
