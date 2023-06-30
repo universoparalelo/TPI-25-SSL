@@ -1,7 +1,6 @@
 import ply.lex as lex
 import ply.yacc as yacc
 from sys import *
-import os
 from tkinter import Tk, Button, Label, Text, Scrollbar, messagebox
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 
@@ -135,7 +134,7 @@ def t_texto(t):
 # Definimos una regla para contar lineas
 def t_newline(t):
     r'\n+'
-    t.lexer.lineno += len(t.value)
+    t.lexer.lineno += 1
 
 # ignora los espacios en blanco y tabuladores
 t_ignore  = ' \t\r'
@@ -145,6 +144,7 @@ def t_error(t):
     global error
     # global t_lineno
     error = f"Error: Carácter no válido '{t.value[0]}', en la columna {t.lexer.lineno}"
+    t.lexer.lineno = 0
     t.lexer.skip(1)
 
 # funcion para hallar la linea donde se encuentra el error
@@ -813,24 +813,20 @@ def parse_file(filename):
     try:
         with open(output_file, "w", encoding='utf-8') as file:
             file.write(data)
+        messagebox.showinfo("Acción completada", "Conversión del archivo XML con éxito")
     except TypeError:
         global error
         global error2 
         if error == '':
-            global columna_error
-            messagebox.showinfo("Hubo un error con su archivo", f"{error2}, en la columna {columna_error}")
+            messagebox.showinfo("Hubo un error con su archivo", f"\n{error2}")
         elif error2 == '':
-            messagebox.showinfo("Hubo un error con su archivo", f"{error}")
+            messagebox.showinfo("Hubo un error con su archivo", f"\n{error}")
         else:
-            messagebox.showinfo("Hubo un error con su archivo", f"{error}. {error2}")
+            messagebox.showinfo("Hubo un error con su archivo", f"\n{error}. {error2}")
         global bandera 
         bandera = False
     
-    print(f"Archivo 'archivo.html' creado en la carpeta '{output_file}'.")
-
-# Llama a la función parse_file() con el nombre del archivo como argumento
-# parse_file('../prueba/prueba2.xml')
-
+    # print(f"Archivo 'archivo.html' creado en la carpeta '{output_file}'.")
 
 def seleccionar_archivo_xml():
     archivo = askopenfilename(filetypes=[("XML Files", "*.xml")])
@@ -838,10 +834,6 @@ def seleccionar_archivo_xml():
     
     # Llama a la función parse_file() con el nombre del archivo como argumento
     parse_file(archivo)
-
-    global bandera
-    if archivo and bandera:
-        messagebox.showinfo("Acción completada", "Se ha seleccionado el archivo XML con éxito")
 
 def mostrar_cuadro_texto():
     boton_seleccionar_archivo_xml.pack_forget()
@@ -855,20 +847,13 @@ def mostrar_cuadro_texto():
 def escribir_archivo_html():
     contenido = cuadro_texto.get("1.0", "end-1c")
     archivo = asksaveasfilename(defaultextension=".html", filetypes=[("HTML Files", "*.html")])
-    
+
     if archivo:
         with open(archivo, "w", encoding='utf-8') as file:
             file.write(contenido)
-        messagebox.showinfo("Acción completada", "Se ha guardado el archivo XML con éxito")
-    
+
     # Llama a la función parse_file() con el nombre del archivo como argumento
     parse_file(archivo)
-
-    boton_seleccionar_archivo_xml.pack(pady=5)
-    boton_escribir_xml.pack(pady=5)
-    boton_salir.pack(pady=5)
-    cuadro_texto.pack_forget()
-    boton_guardar.pack_forget()
 
 def resize(window):
     wtotal = window.winfo_screenwidth()
@@ -886,14 +871,16 @@ def resize(window):
     window.geometry(str(wventana)+"x"+str(hventana)+"+"+str(pwidth)+"+"+str(pheight))
 
 def volver_atras():
+    cuadro_texto.pack_forget()
+    boton_guardar.pack_forget()
+    boton_atras.pack_forget()
+
     label.pack(pady=10)
     boton_seleccionar_archivo_xml.pack(pady=5)
     boton_escribir_xml.pack(pady=5)
     boton_salir.pack(pady=5)
     
-    cuadro_texto.pack_forget()
-    boton_guardar.pack_forget()
-    boton_atras.pack_forget()
+    
 
 root = Tk()
 root.title("Interprete DocBook")
